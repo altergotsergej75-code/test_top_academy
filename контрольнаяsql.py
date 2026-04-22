@@ -60,7 +60,7 @@ class CafeDB:
                 )
                 return self.cur.lastrowid
         except sqlite3.IntegrityError:
-            print("❌ Такой телефон уже существует")
+            print("Такой телефон уже существует")
 
     def get_customers(self):
         self.cur.execute("SELECT * FROM customers")
@@ -171,7 +171,7 @@ class CafeDB:
 
 
 def menu():
-    print("\n📋 Меню:")
+    print("\nМеню:")
     print("1. Добавить клиента")
     print("2. Показать клиентов")
     print("3. Добавить блюдо")
