@@ -50,6 +50,14 @@ class CafeDB:
         self.conn.commit()
 
 
+    def customer_exists(self, customer_id):
+        self.cur.execute("SELECT 1 FROM customers WHERE customer_id = ?", (customer_id,))
+        return self.cur.fetchone() is not None
+
+    def dish_exists(self, dish_id):
+        self.cur.execute("SELECT 1 FROM dishes WHERE dish_id = ?", (dish_id,))
+        return self.cur.fetchone() is not None
+
 
     def add_customer(self, name, phone):
         try:
@@ -58,7 +66,7 @@ class CafeDB:
                     "INSERT INTO customers (name, phone) VALUES (?, ?)",
                     (name, phone)
                 )
-                return self.cur.lastrowid
+                print("Клиент добавлен!")
         except sqlite3.IntegrityError:
             print("Такой телефон уже существует")
 
@@ -67,19 +75,17 @@ class CafeDB:
         return self.cur.fetchall()
 
 
-
     def add_dish(self, name, price):
         with self.conn:
             self.cur.execute(
                 "INSERT INTO dishes (name, price) VALUES (?, ?)",
                 (name, price)
             )
-            return self.cur.lastrowid
+            print("Блюдо добавлено!")
 
     def get_dishes(self):
         self.cur.execute("SELECT * FROM dishes")
         return self.cur.fetchall()
-
 
 
     def add_order(self, customer_id):
@@ -114,12 +120,12 @@ class CafeDB:
                 (total, order_id)
             )
 
-    def update_status(self, order_id, status):
-        with self.conn:
-            self.cur.execute(
-                "UPDATE orders SET status = ? WHERE order_id = ?",
-                (status, order_id)
-            )
+    def get_all_orders(self):
+        self.cur.execute("""
+        SELECT order_id, customer_id, order_date, total_price, status
+        FROM orders
+        """)
+        return self.cur.fetchall()
 
     def get_order_details(self, order_id):
         self.cur.execute("""
@@ -137,14 +143,6 @@ class CafeDB:
         JOIN dishes d ON d.dish_id = oi.dish_id
         WHERE o.order_id = ?
         """, (order_id,))
-
-        return self.cur.fetchall()
-
-    def get_all_orders(self):
-        self.cur.execute("""
-        SELECT order_id, customer_id, order_date, total_price, status
-        FROM orders
-        """)
         return self.cur.fetchall()
 
     def delete_order(self, order_id):
@@ -153,6 +151,7 @@ class CafeDB:
                 "DELETE FROM orders WHERE order_id = ?",
                 (order_id,)
             )
+            print("Заказ удалён")
 
     def most_popular_dish(self):
         self.cur.execute("""
@@ -168,6 +167,19 @@ class CafeDB:
     def close(self):
         self.conn.close()
 
+
+def safe_int_input(text):
+    try:
+        return int(input(text))
+    except ValueError:
+        print("Введите число!")
+        return None
+
+
+def print_list(title, data):
+    print(f"\n--- {title} ---")
+    for row in data:
+        print(row)
 
 
 def menu():
@@ -187,54 +199,88 @@ def menu():
 if __name__ == "__main__":
     db = CafeDB()
 
-    while True:
-        menu()
-        choice = input("Выбери действие: ")
+    try:
+        while True:
+            menu()
+            choice = input("Выбери действие: ")
 
-        if choice == "1":
-            name = input("Имя: ")
-            phone = input("Телефон: ")
-            db.add_customer(name, phone)
+            if choice == "1":
+                name = input("Имя: ")
+                phone = input("Телефон: ")
+                db.add_customer(name, phone)
 
-        elif choice == "2":
-            print(db.get_customers())
+            elif choice == "2":
+                print_list("Клиенты", db.get_customers())
 
-        elif choice == "3":
-            name = input("Название блюда: ")
-            price = int(input("Цена: "))
-            db.add_dish(name, price)
+            elif choice == "3":
+                name = input("Название блюда: ")
+                price = safe_int_input("Цена: ")
+                if price is not None:
+                    db.add_dish(name, price)
 
-        elif choice == "4":
-            print(db.get_dishes())
+            elif choice == "4":
+                print_list("Блюда", db.get_dishes())
 
-        elif choice == "5":
-            customer_id = int(input("ID клиента: "))
-            order_id = db.add_order(customer_id)
+            elif choice == "5":
+                print_list("Клиенты", db.get_customers())
+                customer_id = safe_int_input("ID клиента: ")
 
-            while True:
-                dish_id = int(input("ID блюда (0 - закончить): "))
-                if dish_id == 0:
-                    break
-                qty = int(input("Количество: "))
-                db.add_order_item(order_id, dish_id, qty)
+                if customer_id is None or not db.customer_exists(customer_id):
+                    print("Клиент не найден")
+                    continue
 
-        elif choice == "6":
-            print(db.get_all_orders())
+                order_id = db.add_order(customer_id)
+                print(f"Создан заказ №{order_id}")
 
-        elif choice == "7":
-            order_id = int(input("ID заказа: "))
-            print(db.get_order_details(order_id))
+                while True:
+                    print_list("Блюда", db.get_dishes())
+                    dish_id = safe_int_input("ID блюда (0 - закончить): ")
 
-        elif choice == "8":
-            order_id = int(input("ID заказа: "))
-            db.delete_order(order_id)
+                    if dish_id is None:
+                        continue
+                    if dish_id == 0:
+                        break
+                    if not db.dish_exists(dish_id):
+                        print("Блюдо не найдено")
+                        continue
 
-        elif choice == "9":
-            print(db.most_popular_dish())
+                    qty = safe_int_input("Количество: ")
+                    if qty is None or qty <= 0:
+                        print("Некорректное количество")
+                        continue
 
-        elif choice == "0":
-            db.close()
-            break
+                    db.add_order_item(order_id, dish_id, qty)
 
-        else:
-            print("Неверный выбор")
+            elif choice == "6":
+                print_list("Заказы", db.get_all_orders())
+
+            elif choice == "7":
+                order_id = safe_int_input("ID заказа: ")
+                if order_id is not None:
+                    details = db.get_order_details(order_id)
+                    if details:
+                        print_list("Детали заказа", details)
+                    else:
+                        print("Заказ не найден")
+
+            elif choice == "8":
+                order_id = safe_int_input("ID заказа: ")
+                if order_id is not None:
+                    db.delete_order(order_id)
+
+            elif choice == "9":
+                result = db.most_popular_dish()
+                if result:
+                    print(f"Популярное блюдо: {result[0]} (продано {result[1]})")
+                else:
+                    print("Нет данных")
+
+            elif choice == "0":
+                print("Выход...")
+                break
+
+            else:
+                print("Неверный выбор")
+
+    finally:
+        db.close()
