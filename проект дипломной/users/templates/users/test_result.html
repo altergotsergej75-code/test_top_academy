@@ -1,0 +1,196 @@
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Результат теста</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        header {
+            background: #2563eb;
+            padding: 20px;
+        }
+
+        header a {
+            color: white;
+            text-decoration: none;
+        }
+
+        header a:hover {
+            text-decoration: underline;
+        }
+
+        main {
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        .result-card {
+            background: white;
+            padding: 35px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+        }
+
+        h1 {
+            color: #1d4ed8;
+            margin-top: 0;
+        }
+
+        .test-title {
+            color: #475569;
+            font-size: 18px;
+        }
+
+        .score {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 25px 0 10px;
+        }
+
+        .percentage {
+            font-size: 48px;
+            font-weight: bold;
+            color: #2563eb;
+            margin: 10px 0;
+        }
+
+        .progress {
+            width: 100%;
+            height: 14px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #2563eb;
+            border-radius: 10px;
+        }
+
+        .message {
+            background: #eff6ff;
+            padding: 16px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+
+        .button {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 13px 22px;
+            border-radius: 8px;
+            text-decoration: none;
+            margin: 6px;
+        }
+
+        .button:hover {
+            background: #1d4ed8;
+        }
+
+        .secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .secondary:hover {
+            background: #cbd5e1;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #64748b;
+        }
+
+        @media (max-width: 600px) {
+            .result-card {
+                padding: 24px 18px;
+            }
+
+            .percentage {
+                font-size: 40px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <a href="{% url 'course_list' %}">
+            ← Вернуться к курсам
+        </a>
+    </header>
+
+    <main>
+        <section class="result-card">
+            <h1>Результат теста</h1>
+
+            <p class="test-title">{{ test.title }}</p>
+
+            <p class="score">
+                Правильных ответов: {{ score }} из {{ total_questions }}
+            </p>
+
+            {% if total_questions > 0 %}
+                <div class="percentage">
+                    {% widthratio score total_questions 100 %}%
+                </div>
+
+                <div class="progress">
+                    <div
+                        class="progress-bar"
+                        style="width: {% widthratio score total_questions 100 %}%;"
+                    ></div>
+                </div>
+            {% endif %}
+
+            <div class="message">
+                {% if total_questions > 0 and score == total_questions %}
+                    <strong>Отлично!</strong>
+                    Все ответы правильные! Так держать!
+                {% elif score > 0 %}
+                    <strong>Хорошая работа!</strong>
+                    Продолжай учиться и закрепляй знания.
+                {% else %}
+                    <strong>Не расстраивайся!</strong>
+                    Повтори материал урока и попробуй ещё раз.
+                {% endif %}
+            </div>
+
+            <a class="button" href="{% url 'course_list' %}">
+                Вернуться к курсам
+            </a>
+
+            <a class="button secondary" href="{% url 'my_results' %}">
+                Мои результаты
+            </a>
+        </section>
+    </main>
+
+    <footer>
+        Учебная платформа для изучения Python
+    </footer>
+
+</body>
+</html>
+```

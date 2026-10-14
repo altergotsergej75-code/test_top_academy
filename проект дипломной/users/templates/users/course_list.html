@@ -1,0 +1,213 @@
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Доступные курсы</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        header {
+            background: #2563eb;
+            color: white;
+            padding: 20px;
+        }
+
+        nav {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 15px;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .user-info {
+            max-width: 1000px;
+            margin: 20px auto 0;
+            padding: 0 20px;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            color: #1d4ed8;
+        }
+
+        .course-card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .course-card h2 {
+            margin-top: 0;
+            color: #1d4ed8;
+        }
+
+        .button {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background: #1d4ed8;
+        }
+
+        .secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .status {
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #64748b;
+        }
+
+        @media (max-width: 600px) {
+            nav {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .course-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <nav>
+            <div>
+                <a href="{% url 'home' %}">На главную</a>
+
+                {% if user.is_authenticated %}
+                    <a href="{% url 'my_results' %}">Мои результаты</a>
+                {% endif %}
+            </div>
+
+            {% if user.is_authenticated %}
+                <form method="post" action="{% url 'student_logout' %}">
+                    {% csrf_token %}
+                    <button class="button secondary" type="submit">
+                        Выйти из аккаунта
+                    </button>
+                </form>
+            {% else %}
+                <a href="{% url 'student_login' %}">Войти</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    {% if user.is_authenticated %}
+        <div class="user-info">
+            Вы вошли как: <strong>{{ user.username }}</strong>
+        </div>
+    {% endif %}
+
+    <main>
+        <h1>Доступные курсы</h1>
+
+        <p>Выбери курс, чтобы начать обучение.</p>
+
+        {% for course in courses %}
+            <div class="course-card">
+                <h2>{{ course.title }}</h2>
+
+                <p>{{ course.description }}</p>
+
+                <p>
+                    Преподаватель: {{ course.teacher.username }}
+                </p>
+
+                {% if user.is_authenticated %}
+                    {% if course.id in enrolled_course_ids %}
+                        <p class="status">
+                            Вы уже записаны на этот курс.
+                        </p>
+
+                        <a
+                            class="button"
+                            href="{% url 'lesson_list' course.id %}"
+                        >
+                            Открыть уроки
+                        </a>
+                    {% else %}
+                        <form
+                            method="post"
+                            action="{% url 'enroll_course' course.id %}"
+                        >
+                            {% csrf_token %}
+                            <button class="button" type="submit">
+                                Записаться на курс
+                            </button>
+                        </form>
+                    {% endif %}
+                {% else %}
+                    <a class="button" href="{% url 'register' %}">
+                        Зарегистрироваться для записи
+                    </a>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="course-card">
+                Пока курсов нет.
+            </div>
+        {% endfor %}
+    </main>
+
+    <footer>
+        Учебная платформа для изучения Python
+    </footer>
+
+</body>
+</html>
+```

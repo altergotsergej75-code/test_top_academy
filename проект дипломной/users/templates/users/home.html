@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Учебная платформа</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        header {
+            background: #2563eb;
+            color: white;
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        header h1 {
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+
+        header p {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        h2 {
+            color: #1d4ed8;
+        }
+
+        li {
+            margin-bottom: 12px;
+        }
+
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .button {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+
+        .button:hover {
+            background: #1d4ed8;
+        }
+
+        .secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .secondary:hover {
+            background: #cbd5e1;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            color: #64748b;
+        }
+
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 28px;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .button {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Добро пожаловать на учебную платформу!</h1>
+        <p>
+            Изучай программирование, проходи уроки
+            и проверяй свои знания.
+        </p>
+    </header>
+
+    <main>
+        <section class="card">
+            <h2>Что ты можешь делать?</h2>
+
+            <ul>
+                <li>Изучать учебные курсы</li>
+                <li>Читать уроки по программированию</li>
+                <li>Проходить тесты и проверять знания</li>
+                <li>Просматривать результаты тестирования</li>
+            </ul>
+        </section>
+
+        <section class="card">
+            <h2>Начни обучение</h2>
+
+            <p>
+                Выбери действие, чтобы продолжить работу
+                с учебной платформой.
+            </p>
+
+            <div class="buttons">
+                <a class="button" href="{% url 'course_list' %}">
+                    Посмотреть курсы
+                </a>
+
+                <a class="button secondary" href="{% url 'student_login' %}">
+                    Войти
+                </a>
+
+                <a class="button secondary" href="{% url 'register' %}">
+                    Зарегистрироваться
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        Учебная платформа для изучения Python
+    </footer>
+
+</body>
+</html>
